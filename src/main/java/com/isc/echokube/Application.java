@@ -44,6 +44,7 @@ class HttpConnectionHandler implements Runnable {
         String current;
         do {
             sb.append(current = requestReader.readLine());
+            sb.append("<br>");
         } while (!current.isEmpty());
 
         var response = sb.toString();
