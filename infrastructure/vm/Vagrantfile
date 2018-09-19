@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.network "private_network", ip: "192.168.99.100"
+
+  # Run make get-interface-name to get list of possible values for this field.
+  config.vm.network "public_network", bridge: "enp4s0"
+
+  config.vm.hostname="kube.dev"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "4096"
+    vb.name = "kubedevnode"
+  end
+
+  config.vm.provision "docker"
+  config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/me.pub"
+  config.vm.provision "file", source: "../certs/output/ca.pem", destination: "/home/vagrant/ca.crt"
+  config.vm.provision "shell", inline: <<-SHELL
+    mkdir -p /etc/docker/certs.d/registry.kube.dev
+    mv /home/vagrant/ca.crt /etc/docker/certs.d/registry.kube.dev/ca.crt
+    apt-get update
+    swapoff -a
+    cat "swapoff -a && exit 0"
+    apt-get update && apt-get install -y apt-transport-https
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    apt-get update
+    apt-get install -y kubelet kubeadm kubectl
+    kubeadm init --apiserver-cert-extra-sans=192.168.99.100  --node-name kube.dev
+    mkdir -p $HOME/.kube
+    chmod 777 /etc/kubernetes/admin.conf
+  SHELL
+end

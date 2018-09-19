@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: registry-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  tls:
+  - hosts:
+    - registry.kube.dev
+    secretName: kube-dev-secret
+  rules:
+  - host: registry.kube.dev
+    http:
+      paths:
+      - backend:
+          serviceName: registry-svc
+          servicePort: 80
+        path: /

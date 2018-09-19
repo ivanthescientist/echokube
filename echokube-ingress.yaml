@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: echokube-ingress
+spec:
+  tls:
+  - hosts:
+    - echokube.kube.dev
+    secretName: kube-dev-secret
+  rules:
+  - host: echokube.kube.dev
+    http:
+      paths:
+      - backend:
+          serviceName: echokube-svc
+          servicePort: 80
+        path: /

@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: echokube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echokube
+  template:
+    metadata:
+      labels:
+        app: echokube
+    spec:
+      containers:
+      - name: echokube
+        image: registry.kube.dev/echokube:latest
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: registry-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echokube-svc
+  labels:
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: echokube

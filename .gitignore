@@ -1,0 +1,5 @@
+.idea
+*.iml
+.vagrant
+infrastructure/certs/output
+infrastructure/vm/vagrant-ssh-config
